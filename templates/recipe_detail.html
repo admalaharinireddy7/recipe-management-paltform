@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recipe Details | RecipeHub</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f6f8f3;color:#29372e}
+header{background:#174d36;color:white;padding:20px 6%;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.logo{font-size:26px;font-weight:bold}
+header a{color:white;text-decoration:none;font-weight:bold}
+.container{max-width:1000px;margin:30px auto;padding:0 18px}
+.back{display:inline-block;margin-bottom:20px;color:#216443;text-decoration:none;font-weight:bold}
+.card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 5px 20px #0000000c}
+.hero-img{width:100%;height:360px;object-fit:cover;background:#e7eee5}
+.content{padding:28px}
+h1,h2{color:#174d36}
+h1{font-size:clamp(28px,4vw,40px);margin:10px 0}
+p{line-height:1.7}
+.tag{display:inline-block;background:#e5f1e5;color:#174d36;padding:7px 12px;border-radius:20px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}
+.stat{background:#f2f7ee;padding:16px;border-radius:10px;text-align:center}
+.stat strong{display:block;color:#216443;margin-bottom:6px}
+.columns{display:grid;grid-template-columns:1fr 1.5fr;gap:28px;margin-top:28px}
+.panel{background:#f8faf6;padding:20px;border-radius:12px}
+li{margin:12px 0;line-height:1.6}
+.btn{display:inline-block;background:#216443;color:white;text-decoration:none;border:0;padding:12px 17px;border-radius:8px;cursor:pointer;font-weight:bold}
+.light{background:#e5f1e5;color:#174d36}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:25px 0}
+.review-box{margin-top:30px;background:#fff7e8;border-radius:15px;padding:25px}
+label{display:block;font-weight:bold;margin:14px 0 7px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #d2d9d0;border-radius:8px;font:inherit}
+.review-item{background:white;padding:16px;border-radius:10px;margin-top:12px}
+footer{text-align:center;padding:25px;background:#174d36;color:white;margin-top:35px}
+@media(max-width:650px){.columns{grid-template-columns:1fr}.stats{grid-template-columns:1fr}.hero-img{height:230px}.content{padding:18px}}
+</style>
+</head>
+
+<body>
+<header>
+    <div class="logo">🍲 RecipeHub</div>
+    <a href="{{ url_for('index') }}">← Back to Home</a>
+</header>
+
+{% set rid = recipe.get('key', recipe.get('id', recipe.get('_id', '')))|string %}
+{% set ingredients = recipe.get('ingredients', []) %}
+{% set instructions = recipe.get('instructions', recipe.get('steps', [])) %}
+
+<div class="container">
+    <a class="back" href="{{ url_for('index') }}">← All Recipes</a>
+
+    <article class="card">
+        <img class="hero-img"
+             src="{{ recipe.get('image', 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=80') }}"
+             alt="{{ recipe.get('name', 'Recipe') }}"
+             onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=80'">
+
+        <div class="content">
+            <span class="tag">{{ recipe.get('category', 'Recipe') }}</span>
+            <h1>{{ recipe.get('name', 'Delicious Recipe') }}</h1>
+            <p>{{ recipe.get('description', 'Discover this delicious recipe and prepare it at home.') }}</p>
+
+            <div class="stats">
+                <div class="stat"><strong>⏱️ Cooking Time</strong>{{ recipe.get('time', recipe.get('cooking_time', '30 minutes')) }}</div>
+                <div class="stat"><strong>🍽️ Servings</strong>{{ recipe.get('servings', '2 people') }}</div>
+                <div class="stat"><strong>⭐ Rating</strong>{{ recipe.get('rating', 'Not rated yet') }}</div>
+            </div>
+
+            <div class="actions">
+                <a class="btn light" href="{{ url_for('edit_recipe', key=rid) }}">✏️ Edit Recipe</a>
+                <a class="btn light" href="{{ url_for('toggle_favorite', key=rid) }}">❤️ Add to Favorites</a>
+                <a class="btn" href="{{ url_for('download_recipes') }}">📄 Download Recipes PDF</a>
+            </div>
+
+            <div class="columns">
+                <section class="panel">
+                    <h2>🥗 Ingredients</h2>
+                    {% if ingredients is string %}
+                        <p style="margin-top:15px;white-space:pre-line">{{ ingredients }}</p>
+                    {% elif ingredients %}
+                        <ul>
+                        {% for ingredient in ingredients %}
+                            <li>{{ ingredient }}</li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="margin-top:15px">Ingredients are not available yet. Edit the recipe to add them.</p>
+                    {% endif %}
+                </section>
+
+                <section class="panel">
+                    <h2>👩‍🍳 Preparation Steps</h2>
+                    {% if instructions is string %}
+                        <p style="margin-top:15px;white-space:pre-line">{{ instructions }}</p>
+                    {% elif instructions %}
+                        <ol>
+                        {% for step in instructions %}
+                            <li>{{ step }}</li>
+                        {% endfor %}
+                        </ol>
+                    {% else %}
+                        <p style="margin-top:15px">Preparation steps are not available yet. Edit the recipe to add them.</p>
+                    {% endif %}
+                </section>
+            </div>
+
+            <section class="review-box">
+                <h2>⭐ Rate This Recipe</h2>
+                <p>Share your rating and feedback about this dish.</p>
+
+                <form action="{{ url_for('review_recipe', key=rid) }}" method="POST">
+                    <label for="rating">Your Rating</label>
+                    <select id="rating" name="rating" required>
+                        <option value="">Select rating</option>
+                        <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                        <option value="4">⭐⭐⭐⭐ Very Good</option>
+                        <option value="3">⭐⭐⭐ Good</option>
+                        <option value="2">⭐⭐ Fair</option>
+                        <option value="1">⭐ Needs Improvement</option>
+                    </select>
+
+                    <label for="review">Your Review</label>
+                    <textarea id="review" name="review" rows="4" required
+                              placeholder="Write your feedback..."></textarea>
+
+                    <br><br>
+                    <button class="btn" type="submit">Submit Review</button>
+                </form>
+
+                {% if recipe.get('reviews') %}
+                    <h2 style="margin-top:25px">💬 Reviews</h2>
+                    {% for item in recipe.get('reviews', []) %}
+                        <div class="review-item">
+                            <strong>⭐ {{ item.get('rating', '') }}/5</strong>
+                            <p>{{ item.get('review', '') }}</p>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </section>
+        </div>
+    </article>
+</div>
+
+<footer>
+    <h3>🍲 RecipeHub</h3>
+    <p>Discover • Cook • Share • Enjoy</p>
+    <p>© 2026 RecipeHub</p>
+</footer>
+</body>
+</html>
+
+
+

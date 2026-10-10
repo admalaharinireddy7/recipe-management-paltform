@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ action }} Recipe | RecipeHub</title>
+    <style>
+        *{box-sizing:border-box}
+        body{margin:0;font-family:Arial,sans-serif;background:#f3f7ef;color:#25372b}
+        nav{background:#174d36;color:white;padding:18px 6%;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+        nav a{color:white;text-decoration:none;margin-left:15px}
+        .container{max-width:850px;margin:35px auto;padding:20px}
+        .form-card{background:white;padding:30px;border-radius:18px;box-shadow:0 6px 24px #173c2012}
+        h1{color:#174d36;margin-top:0}
+        .subtitle{color:#667568;margin-bottom:25px}
+        .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+        .field{display:flex;flex-direction:column;gap:8px;margin-bottom:17px}
+        .full{grid-column:1/-1}
+        label{font-weight:bold;font-size:14px}
+        input,select,textarea{width:100%;padding:13px;border:1px solid #d1dbce;border-radius:9px;font-size:15px;font-family:inherit}
+        textarea{min-height:115px;resize:vertical}
+        input:focus,select:focus,textarea:focus{outline:2px solid #a6c9a8;border-color:#216443}
+        .buttons{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+        button,.btn{padding:13px 20px;border-radius:9px;border:none;background:#216443;color:white;font-weight:bold;cursor:pointer;text-decoration:none;font-size:14px}
+        .secondary{background:#e5eee2;color:#174d36}
+        .message{padding:12px;background:#fff0dc;border-radius:8px;margin-bottom:15px}
+        @media(max-width:600px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.form-card{padding:20px}}
+    </style>
+</head>
+<body>
+<nav>
+    <strong>🍲 RecipeHub</strong>
+    <div>
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('favorites_page') }}">Favorites</a>
+    </div>
+</nav>
+
+<main class="container">
+    <section class="form-card">
+        <h1>🍽️ {{ action }} Your Recipe</h1>
+        <p class="subtitle">Share your favourite dish with your RecipeHub collection.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="grid">
+                <div class="field full">
+                    <label for="name">Recipe Name *</label>
+                    <input id="name" name="name" required
+                           placeholder="e.g. Chicken Biryani"
+                           value="{{ recipe.get('name', '') }}">
+                </div>
+
+                <div class="field">
+                    <label for="category">Category</label>
+                    <select id="category" name="category">
+                        <option value="Veg" {% if recipe.get('category') == 'Veg' %}selected{% endif %}>Vegetarian</option>
+                        <option value="Non-Veg" {% if recipe.get('category') == 'Non-Veg' %}selected{% endif %}>Non-Vegetarian</option>
+                        <option value="Dessert" {% if recipe.get('category') == 'Dessert' %}selected{% endif %}>Dessert</option>
+                        <option value="Other" {% if recipe.get('category') == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="time">Cooking Time</label>
+                    <input id="time" name="time" placeholder="e.g. 30 minutes"
+                           value="{{ recipe.get('time', '') }}">
+                </div>
+
+                <div class="field">
+                    <label for="difficulty">Difficulty</label>
+                    <select id="difficulty" name="difficulty">
+                        <option value="Easy" {% if recipe.get('difficulty') == 'Easy' %}selected{% endif %}>Easy</option>
+                        <option value="Medium" {% if recipe.get('difficulty') == 'Medium' %}selected{% endif %}>Medium</option>
+                        <option value="Hard" {% if recipe.get('difficulty') == 'Hard' %}selected{% endif %}>Hard</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="image">Image URL (optional)</label>
+                    <input id="image" name="image" type="url"
+                           placeholder="https://example.com/food.jpg"
+                           value="{{ recipe.get('image', '') }}">
+                </div>
+
+                <div class="field full">
+                    <label for="description">Short Description</label>
+                    <textarea id="description" name="description"
+                              placeholder="Describe your delicious recipe...">{{ recipe.get('description', '') }}</textarea>
+                </div>
+
+                <div class="field full">
+                    <label for="ingredients">Ingredients *</label>
+                    <textarea id="ingredients" name="ingredients" required
+                              placeholder="Enter ingredients and quantities...">{{ recipe.get('ingredients', '') }}</textarea>
+                </div>
+
+                <div class="field full">
+                    <label for="instructions">Preparation Steps *</label>
+                    <textarea id="instructions" name="instructions" required
+                              placeholder="Write step-by-step cooking instructions...">{{ recipe.get('instructions', '') }}</textarea>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button type="submit">💾 Save Recipe</button>
+                <a class="btn secondary" href="{{ url_for('index') }}">Cancel</a>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>
+
+
+

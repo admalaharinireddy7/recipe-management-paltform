@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecipeHub | Recipe Management System</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f6f8f3;color:#26352c}
+header{background:#174d36;color:white;padding:18px 6%;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.logo{font-size:27px;font-weight:bold}
+nav{display:flex;gap:15px;flex-wrap:wrap}
+nav a{color:white;text-decoration:none;font-weight:bold}
+.hero{padding:45px 6%;background:linear-gradient(120deg,#e0f2df,#fff0d8);display:grid;grid-template-columns:1.2fr 1fr;align-items:center;gap:25px}
+.hero h1{font-size:clamp(32px,4vw,49px);color:#174d36;margin-bottom:15px}
+.hero p{line-height:1.7;margin-bottom:20px}
+.hero img{width:100%;height:280px;object-fit:cover;border-radius:20px}
+main{max-width:1200px;margin:auto;padding:30px 20px}
+.btn{display:inline-block;background:#216443;color:white;padding:12px 16px;border:0;border-radius:8px;text-decoration:none;cursor:pointer;font-weight:bold}
+.light{background:#e5f1e5;color:#174d36}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:30px}
+.stat{background:white;padding:22px;text-align:center;border-radius:14px;box-shadow:0 3px 12px #00000008}
+.stat strong{display:block;font-size:28px;color:#216443;margin-bottom:8px}
+.section-title{color:#174d36;font-size:27px;margin:25px 0 16px}
+.finder{background:white;border-radius:15px;padding:23px;margin-bottom:28px;box-shadow:0 3px 12px #00000008}
+.search-row{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}
+input{font:inherit;padding:12px;border:1px solid #d4ddd3;border-radius:8px;flex:1;min-width:190px}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}
+.chip{background:#e5f1e5;color:#174d36;padding:9px 14px;border-radius:22px;text-decoration:none}
+.recipes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.recipe{background:white;border-radius:15px;overflow:hidden;box-shadow:0 4px 15px #0000000c;display:flex;flex-direction:column}
+.recipe img{width:100%;height:190px;object-fit:cover}
+.recipe-body{padding:17px;display:flex;flex-direction:column;gap:11px;flex:1}
+.recipe h3{font-size:21px;color:#174d36}
+.tag{display:inline-block;background:#e5f1e5;color:#216443;padding:5px 9px;border-radius:15px;font-size:12px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:5px}
+.actions a{font-size:12px}
+.empty{background:white;border-radius:12px;padding:25px;text-align:center;grid-column:1/-1}
+.tips{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:20px 0}
+.tip{background:#e7f1e4;padding:20px;border-radius:12px;line-height:1.7}
+footer{background:#174d36;color:white;text-align:center;padding:28px;line-height:1.8;margin-top:30px}
+@media(max-width:800px){.hero{grid-template-columns:1fr}.recipes{grid-template-columns:repeat(2,minmax(0,1fr))}.tips{grid-template-columns:1fr}}
+@media(max-width:520px){.recipes,.stats{grid-template-columns:1fr}.hero img{height:210px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🍲 RecipeHub</div>
+  <nav>
+    <a href="{{ url_for('index') }}">Home</a>
+    <a href="{{ url_for('index') }}#recipes">Recipes</a>
+    <a href="{{ url_for('favorites_page') }}">❤️ Favorites</a>
+    <a href="{{ url_for('add_recipe') }}">➕ Add Recipe</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div>
+    <h1>Discover Your Next Favourite Meal!</h1>
+    <p>Find delicious recipes, explore ingredients, save your favourites, and bring amazing flavours to your kitchen.</p>
+    <a class="btn" href="#recipes">Explore Recipes →</a>
+    <a class="btn light" href="{{ url_for('add_recipe') }}">+ Add Recipe</a>
+  </div>
+  <img src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=80" alt="Delicious food">
+</section>
+
+<main>
+  <section class="stats">
+    <div class="stat"><strong>{{ total_recipes|default(recipes|length) }}</strong>Recipes Available</div>
+    <div class="stat"><strong>🔎</strong>Smart Recipe Search</div>
+    <div class="stat"><strong>❤️</strong>Favourite Recipes</div>
+  </section>
+
+  <section class="finder">
+    <h2 class="section-title" style="margin-top:0">🤖 Smart Recipe Finder</h2>
+    <p>Search using a recipe name or an ingredient.</p>
+    <form action="{{ url_for('index') }}" method="GET" class="search-row">
+      <input name="q" type="text" value="{{ q|default('') }}" placeholder="Example: chicken, rice, paneer...">
+      <button class="btn" type="submit">🔎 Search</button>
+      <a class="btn light" href="{{ url_for('index') }}">Reset</a>
+    </form>
+    <div class="chips">
+      <a class="chip" href="{{ url_for('index', q='chicken') }}">🍗 Chicken</a>
+      <a class="chip" href="{{ url_for('index', q='rice') }}">🍚 Rice</a>
+      <a class="chip" href="{{ url_for('index', q='paneer') }}">🧀 Paneer</a>
+      <a class="chip" href="{{ url_for('index', q='cake') }}">🍰 Cake</a>
+    </div>
+  </section>
+
+  <section id="recipes">
+    <h2 class="section-title">🍽️ Explore Recipes</h2>
+    <div class="chips">
+      <a class="chip" href="{{ url_for('index') }}">All Recipes</a>
+      <a class="chip" href="{{ url_for('index', category='Vegetarian') }}">🥗 Vegetarian</a>
+      <a class="chip" href="{{ url_for('index', category='Non-Vegetarian') }}">🍗 Non-Vegetarian</a>
+      <a class="chip" href="{{ url_for('index', category='Dessert') }}">🍰 Desserts</a>
+    </div>
+
+    <div class="chips">
+      <a class="btn" href="{{ url_for('add_recipe') }}">➕ Add New Recipe</a>
+      <a class="btn light" href="{{ url_for('favorites_page') }}">❤️ View Favorites</a>
+      <a class="btn light" href="{{ url_for('download_recipes') }}">📄 Download Recipes PDF</a>
+    </div>
+
+    <div class="recipes">
+    {% for recipe in recipes %}
+      {% set rid = recipe.get('key', recipe.get('id', recipe.get('_id', '')))|string %}
+      <article class="recipe">
+        <img
+          src="{{ recipe.get('image', 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=700&q=80') }}"
+          alt="{{ recipe.get('name', 'Recipe') }}"
+          onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=700&q=80'">
+        <div class="recipe-body">
+          <div><span class="tag">{{ recipe.get('category','Recipe') }}</span></div>
+          <h3>{{ recipe.get('name','Delicious Recipe') }}</h3>
+          <p>{{ recipe.get('description','A delicious recipe to try at home.') }}</p>
+          <p>⏱️ {{ recipe.get('time', recipe.get('cooking_time','30 minutes')) }}</p>
+          <div class="actions">
+            <a class="btn" href="{{ url_for('recipe_detail', key=rid) }}">View</a>
+            <a class="btn light" href="{{ url_for('toggle_favorite', key=rid) }}">❤️ Favorite</a>
+            <a class="btn light" href="{{ url_for('edit_recipe', key=rid) }}">✏️ Edit</a>
+            <a class="btn light" href="{{ url_for('delete_recipe', key=rid) }}" onclick="return confirm('Delete this recipe?')">🗑️ Delete</a>
+          </div>
+        </div>
+      </article>
+    {% else %}
+      <div class="empty">
+        <h3>No recipes found!</h3>
+        <p>Try a different search or add a new recipe.</p><br>
+        <a class="btn" href="{{ url_for('add_recipe') }}">➕ Add Recipe</a>
+        <a class="btn light" href="{{ url_for('index') }}">Show All</a>
+      </div>
+    {% endfor %}
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title">👩‍🍳 Cooking Tips</h2>
+    <div class="tips">
+      <div class="tip"><h3>🥦 Use Fresh Ingredients</h3><p>Fresh ingredients can improve flavour and nutrition.</p></div>
+      <div class="tip"><h3>🧂 Balance Your Spices</h3><p>Add spices gradually and taste your food while cooking.</p></div>
+      <div class="tip"><h3>⏰ Prepare Before Cooking</h3><p>Keep ingredients ready to make cooking easier.</p></div>
+    </div>
+  </section>
+
+  <section style="background:white;padding:24px;border-radius:14px;line-height:1.8">
+    <h2 class="section-title" style="margin-top:0">About RecipeHub</h2>
+    <p>RecipeHub is a recipe management platform that helps users discover, search, save, and manage recipes. Its user-friendly interface makes it easier to find cooking inspiration and organize favourite meals.</p>
+    <p><strong>Project Goal:</strong> Make recipe discovery and management simple, useful, and accessible.</p>
+  </section>
+</main>
+
+<footer>
+  <h2>🍲 RecipeHub</h2>
+  <p>Discover • Cook • Share • Enjoy</p>
+  <p>Made with ❤️ for food lovers</p>
+  <p>© 2026 RecipeHub | Recipe Management Platform</p>
+</footer>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
